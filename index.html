@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hourly Wage Clock</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            text-align: center;
+            background: #fff;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #clock {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        #earnings {
+            font-size: 2em;
+            color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="input-group">
+            <label for="hourly-wage">Hourly Wage:</label>
+            <input type="number" id="hourly-wage" step="0.01" placeholder="Enter hourly wage">
+        </div>
+        <div class="input-group">
+            <label for="start-time">Start Time:</label>
+            <input type="time" id="start-time">
+        </div>
+        <button onclick="startClock()">Start Clock</button>
+        <div id="clock"></div>
+        <div id="earnings"></div>
+    </div>
+
+    <script>
+        let hourlyWage, startTime, intervalId;
+
+        function startClock() {
+            const hourlyWageInput = document.getElementById('hourly-wage').value;
+            const startTimeInput = document.getElementById('start-time').value;
+
+            if (hourlyWageInput && startTimeInput) {
+                hourlyWage = parseFloat(hourlyWageInput);
+                startTime = new Date();
+                const [startHours, startMinutes] = startTimeInput.split(':');
+                startTime.setHours(startHours, startMinutes, 0, 0);
+
+                if (startTime > new Date()) {
+                    alert("Start time cannot be in the future.");
+                    return;
+                }
+
+                if (intervalId) {
+                    clearInterval(intervalId);
+                }
+
+                intervalId = setInterval(updateClock, 1000);
+                updateClock(); // Run immediately once to avoid delay
+            } else {
+                alert("Please enter hourly wage and start time.");
+            }
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const elapsed = now - startTime;
+
+            // Calculate elapsed hours, minutes, and seconds
+            const totalSeconds = Math.floor(elapsed / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            // Format time string
+            const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('clock').textContent = timeString;
+
+            // Calculate earnings
+            const earnings = (elapsed / (1000 * 60 * 60)) * hourlyWage;
+            document.getElementById('earnings').textContent = `Earnings: £${earnings.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
